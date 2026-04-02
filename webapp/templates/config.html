@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration — Digital Twin Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .config-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+        .config-card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 32px;
+            border: 1px solid #233554;
+            margin-bottom: 24px;
+        }
+        .config-card h2 {
+            color: #e94560;
+            margin-bottom: 24px;
+            font-size: 1.3rem;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0b0c0;
+            font-size: 0.9rem;
+        }
+        .form-group .description {
+            font-size: 0.8rem;
+            color: #6070a0;
+            margin-bottom: 8px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: #233554;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #e94560;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .slider-value {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 700;
+            color: #e94560;
+            font-size: 1.2rem;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background: #233554;
+            border: 1px solid #344564;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 1rem;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .btn-save {
+            background: #53d769;
+            color: #1a1a2e;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-save:hover { background: #4bc45e; }
+        .success-msg {
+            display: none;
+            text-align: center;
+            color: #53d769;
+            margin-top: 12px;
+            font-weight: 600;
+        }
+        .formula-box {
+            background: #0f3460;
+            border-radius: 4px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #a0b0c0;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="navbar-brand">Fabrik Digital Twin</a>
+    <div class="navbar-links">
+        <a href="/">Dashboard</a>
+        <a href="/config" class="active">Configuration</a>
+    </div>
+</nav>
+
+<div class="config-container">
+    <div class="config-card">
+        <h2>Weight Configuration</h2>
+
+        <div class="form-group">
+            <label>Bearing Life Weight (1-10)</label>
+            <div class="description">
+                How much should bearing age influence the prediction?
+                Higher = older bearings get more aggressive failure predictions.
+            </div>
+            <div class="slider-container">
+                <span style="font-size:0.8rem;color:#6070a0;">Low</span>
+                <input type="range" id="life-weight" min="1" max="10" value="{{ config.life_weight_scale }}"
+                       oninput="document.getElementById('life-val').textContent = this.value">
+                <span style="font-size:0.8rem;color:#6070a0;">High</span>
+                <span class="slider-value" id="life-val">{{ config.life_weight_scale }}</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Slope Weight (1-10)</label>
+            <div class="description">
+                How much should vibration spikes influence the prediction?
+                Higher = sudden changes trigger more urgent warnings.
+            </div>
+            <div class="slider-container">
+                <span style="font-size:0.8rem;color:#6070a0;">Low</span>
+                <input type="range" id="slope-weight" min="1" max="10" value="{{ config.slope_weight_scale }}"
+                       oninput="document.getElementById('slope-val').textContent = this.value">
+                <span style="font-size:0.8rem;color:#6070a0;">High</span>
+                <span class="slider-value" id="slope-val">{{ config.slope_weight_scale }}</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Bearing Age (hours running)</label>
+            <input type="number" id="bearing-age" value="{{ config.bearing_age_hours }}" min="0" step="1">
+        </div>
+
+        <div class="form-group">
+            <label>Expected Total Life (hours)</label>
+            <input type="number" id="bearing-life" value="{{ config.bearing_total_life_hours }}" min="100" step="100">
+        </div>
+
+        <button class="btn-save" onclick="saveConfig()">Save Configuration</button>
+        <div class="success-msg" id="success-msg">Configuration saved successfully!</div>
+
+        <div class="formula-box">
+            <strong>Weighting Formula:</strong><br><br>
+            Life Weight: 1x (new) → 3x (half-life) → 5x (end-of-life)<br>
+            Slope Weight: 1x (stable) → 2x (+5) → 3x (+10) → 5x (+20)<br><br>
+            Combined = Life Weight × Slope Weight<br>
+            Example: 4.6 × 3 = 13.8x (from sponsor spec)
+        </div>
+    </div>
+</div>
+
+<script>
+async function saveConfig() {
+    const body = {
+        life_weight_scale: parseInt(document.getElementById('life-weight').value),
+        slope_weight_scale: parseInt(document.getElementById('slope-weight').value),
+        bearing_age_hours: parseFloat(document.getElementById('bearing-age').value) || 0,
+        bearing_total_life_hours: parseFloat(document.getElementById('bearing-life').value) || 1500,
+    };
+
+    try {
+        const resp = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+
+        if (resp.ok) {
+            const msg = document.getElementById('success-msg');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+    } catch (e) {
+        alert('Failed to save: ' + e.message);
+    }
+}
+</script>
+
+</body>
+</html>
