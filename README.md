@@ -1,6 +1,7 @@
 # Bearing Digital Twin — Remaining Useful Life Prediction
 
 ![CI](https://github.com/gautam2905/Digital-Twin/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 
 A Digital Twin dashboard for industrial centrifugal pump bearings that predicts **Remaining Useful Life (RUL)** — when a bearing should be replaced — using vibration data analysis and machine learning.
