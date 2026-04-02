@@ -129,6 +129,10 @@ Both weights are adjustable via user sliders (1-10 scale) on the configuration p
 - [University of Ottawa Ball-bearing Vibration and Acoustic Fault Data (UODS-VAFDC)](https://data.mendeley.com/)
 - [Multi-domain vibration dataset — deep groove ball bearing](https://data.mendeley.com/)
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, branch naming, commit conventions, and PR process.
+
 ## License
 
 This project is developed for academic purposes as part of IIIT Delhi's SDOS program.
