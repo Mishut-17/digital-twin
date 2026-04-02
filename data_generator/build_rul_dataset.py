@@ -268,3 +268,26 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def export_sample_json(generated_dir=GENERATED_DIR, n_samples=5):
+    """Export a few sample readings in Fabrik JSON format for reference."""
+    import json
+    from datetime import datetime, timedelta
+
+    y = np.load(os.path.join(generated_dir, "y_rul.npy"))
+    samples = []
+    base_time = datetime(2026, 4, 1)
+
+    for i in range(min(n_samples, len(y))):
+        samples.append({
+            "date": (base_time + timedelta(hours=float(i))).strftime("%Y-%m-%d"),
+            "hours_running": float(i),
+            "rul_hours": round(float(y[i]), 2),
+            "rul_days": round(float(y[i]) / 24, 2),
+        })
+
+    output_path = os.path.join(generated_dir, "sample_readings.json")
+    with open(output_path, "w") as f:
+        json.dump(samples, f, indent=2)
+    print(f"Sample JSON exported to {output_path}")
