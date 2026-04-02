@@ -1,5 +1,5 @@
 /**
- * Simulator Controls — WebSocket client for real-time bearing data.
+ * Simulator Controls - WebSocket client for real-time bearing data.
  */
 
 let ws = null;
@@ -30,9 +30,12 @@ function connectWs() {
         } else if (msg.type === 'failure') {
             setStatus('failure');
             document.getElementById('rul-action').textContent =
-                'BEARING FAILURE — Replace immediately!';
-            document.getElementById('rul-value').textContent = '0.00 days';
+                'BEARING FAILURE - Replace immediately!';
+            document.getElementById('rul-value').textContent = '0.00';
             document.getElementById('rul-value').className = 'rul-value critical';
+            if (typeof updateRiskChip === 'function') {
+                updateRiskChip('critical');
+            }
         } else if (msg.type === 'history') {
             // Load historical data into charts
             if (msg.data && msg.data.length > 0) {
