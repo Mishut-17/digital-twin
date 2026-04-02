@@ -1,0 +1,48 @@
+# Generated data (large files)
+data_generator/generated/
+*.npy
+X_combined.npy
+y_combined.npy
+
+# Model checkpoints (large)
+*.pt
+!rul_model/weights/rul_model_weights.npz
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large files
+temp.zip
+
+# Phase 1 & 2 (legacy code, kept locally for reference)
+phase1/
+phase2/
+
+# Plots (generated during training)
+rul_model/weights/rul_scatter.png
+rul_model/weights/training_log.csv
+rul_model/weights/*.pt
+
+# Reference screenshots and docs
+*.pdf
+sdos1.png
+sdos2.png
+m1.pdf
+m2.pdf
