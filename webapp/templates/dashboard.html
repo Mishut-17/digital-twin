@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin Dashboard — Fabrik</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">Fabrik Digital Twin</a>
+    <div class="navbar-links">
+        <a href="/" class="active">Dashboard</a>
+        <a href="/config">Configuration</a>
+        <a href="/api/health">API Health</a>
+    </div>
+</nav>
+
+<!-- RUL Header -->
+<div class="rul-header">
+    <div class="rul-value" id="rul-value">--</div>
+    <div class="rul-label">Estimated Remaining Useful Life (threshold: vibration RMS > 1.0)</div>
+    <div class="rul-action" id="rul-action">Start the simulator to see predictions</div>
+</div>
+
+<!-- Main Grid -->
+<div class="dashboard-grid">
+
+    <!-- Left: Donut Charts -->
+    <div class="card">
+        <div class="card-title">Bearing Health</div>
+        <div class="donut-section">
+            <div class="donut-container">
+                <canvas id="donut-overall"></canvas>
+                <div class="donut-label">Overall</div>
+                <div class="donut-value" id="health-overall">--%</div>
+            </div>
+            <div class="donut-container">
+                <canvas id="donut-de"></canvas>
+                <div class="donut-label">DE Bearing</div>
+                <div class="donut-value" id="health-de">--%</div>
+            </div>
+            <div class="donut-container">
+                <canvas id="donut-nde"></canvas>
+                <div class="donut-label">NDE Bearing</div>
+                <div class="donut-value" id="health-nde">--%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Trend Analysis -->
+    <div class="card">
+        <div class="card-title">Trend Analysis — Vibration RMS</div>
+        <div class="chart-container">
+            <canvas id="trend-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Left: Weight Info -->
+    <div class="card">
+        <div class="card-title">Weight Factors</div>
+        <div style="padding: 8px 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Life Weight:</span>
+                <span id="weight-life" style="color: #e94560; font-weight: 700;">--</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Slope Weight:</span>
+                <span id="weight-slope" style="color: #e94560; font-weight: 700;">--</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Combined:</span>
+                <span id="weight-combined" style="color: #ffcc00; font-weight: 700;">--</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Risk Level:</span>
+                <span id="risk-level" style="font-weight: 700;">--</span>
+            </div>
+            <div style="margin-top: 16px; text-align: center;">
+                <a href="/config" class="btn btn-pause" style="text-decoration: none;">Adjust Weights</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Raw Vibration Data -->
+    <div class="card">
+        <div class="card-title">Raw Vibration Data</div>
+        <div class="chart-container">
+            <canvas id="raw-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card data-table-container">
+        <div class="card-title">Recent Readings</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Hours</th>
+                    <th>Vibration RMS</th>
+                    <th>Temperature</th>
+                    <th>RPM</th>
+                    <th>RUL (days)</th>
+                    <th>Health %</th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body">
+                <tr><td colspan="7" style="text-align: center; color: #555;">No data yet — start the simulator</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Simulator Controls -->
+    <div class="controls">
+        <span class="status-indicator" id="status-light"></span>
+        <span id="status-text" style="color: #8090a0;">Stopped</span>
+
+        <button class="btn btn-start" id="btn-start" onclick="startSim()">Start</button>
+        <button class="btn btn-pause" id="btn-pause" onclick="pauseSim()">Pause</button>
+        <button class="btn btn-reset" id="btn-reset" onclick="resetSim()">Reset</button>
+
+        <div class="speed-selector">
+            <button class="speed-btn" onclick="setSpeed(10)">10x</button>
+            <button class="speed-btn active" onclick="setSpeed(100)">100x</button>
+            <button class="speed-btn" onclick="setSpeed(500)">500x</button>
+            <button class="speed-btn" onclick="setSpeed(1000)">1000x</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/simulator.js"></script>
+
+</body>
+</html>
