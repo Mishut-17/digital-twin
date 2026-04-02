@@ -257,3 +257,24 @@ function clearDashboard() {
     document.getElementById('rul-action').textContent = 'Start the simulator to see predictions';
     updateDonuts(100);
 }
+
+
+// --- Error Handling ---
+window.onerror = function(msg, url, line) {
+    console.error('[Dashboard Error]', msg, 'at', url, ':', line);
+    return false;
+};
+
+// --- Keyboard Shortcuts ---
+document.addEventListener('keydown', function(e) {
+    if (e.key === ' ' && e.target === document.body) {
+        e.preventDefault();
+        const status = document.getElementById('status-text').textContent;
+        if (status === 'Running') pauseSim();
+        else startSim();
+    }
+    if (e.key === 'r' && e.ctrlKey) {
+        e.preventDefault();
+        resetSim();
+    }
+});
