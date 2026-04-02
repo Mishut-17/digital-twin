@@ -288,3 +288,28 @@ body {
         justify-content: center;
     }
 }
+
+/* --- Print Styles --- */
+@media print {
+    .controls, .navbar-links { display: none; }
+    .card { break-inside: avoid; }
+    body { background: white; color: black; }
+}
+
+/* --- Accessibility --- */
+.btn:focus, .speed-btn:focus, input:focus {
+    outline: 2px solid #e94560;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
