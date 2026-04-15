@@ -8,4 +8,4 @@ HOST=${HOST:-0.0.0.0}
 echo "Starting Digital Twin Dashboard on http://${HOST}:${PORT}"
 cd "$(dirname "$0")"
 
-python -m uvicorn webapp.app:app --host "$HOST" --port "$PORT" --reload
+python -m uvicorn webapp.app:app --host "$HOST" --port "$PORT"

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin Dashboard - Fabrik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/dashboard-modern.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-group">
+        <a href="/" class="nav-link active">Dashboard</a>
+        <a href="/config" class="nav-link">Configuration</a>
+    </div>
+    <a href="/" class="navbar-brand">
+        <span class="brand-mark"></span>
+        fabrik
+    </a>
+    <div class="nav-group right">
+        <a href="#" class="nav-link" id="api-health-link">API Health</a>
+    </div>
+</nav>
+
+<main class="page">
+    <section class="controls-bar top">
+        <div class="controls">
+            <span class="status-indicator" id="status-light"></span>
+            <span id="status-text">Stopped</span>
+
+            <button class="btn btn-start" id="btn-start" onclick="startSim()">Start</button>
+            <button class="btn btn-pause" id="btn-pause" onclick="pauseSim()">Pause</button>
+            <button class="btn btn-reset" id="btn-reset" onclick="resetSim()">Reset</button>
+
+            <div class="speed-selector">
+                <button class="speed-btn" onclick="setSpeed(10)">10x</button>
+                <button class="speed-btn active" onclick="setSpeed(100)">100x</button>
+                <button class="speed-btn" onclick="setSpeed(500)">500x</button>
+                <button class="speed-btn" onclick="setSpeed(1000)">1000x</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="top-row">
+        <div class="rul-card">
+            <div class="rul-title">Estimated Time to Failure</div>
+            <div class="rul-display">
+                <span class="rul-value" id="rul-value">--</span>
+                <span class="rul-unit">days</span>
+            </div>
+            <div class="rul-sub">
+                <span class="rul-threshold">threshold: vibration RMS &gt; 1.0</span>
+                <span class="rul-chip" id="risk-level-chip">--</span>
+            </div>
+            <div class="rul-action" id="rul-action">Start the simulator to see predictions</div>
+        </div>
+
+        <div class="data-table-container compact">
+            <div class="card-title">Past Stats</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Hours</th>
+                        <th>Vibration RMS</th>
+                        <th>Temperature</th>
+                        <th>RPM</th>
+                        <th>RUL (days)</th>
+                        <th>Health %</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <tr><td colspan="7" style="text-align: center; color: #555;">No data yet - start the simulator</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="main-grid">
+        <div class="chart-stack">
+            <div class="chart-card">
+                <div class="card-title">Trend Analysis (Vibration RMS)</div>
+                <div class="chart-container">
+                    <canvas id="trend-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="card-title">Raw Temperature Data</div>
+                <div class="chart-container">
+                    <canvas id="raw-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-stack">
+            <div class="feature-card">
+                <div class="card-title">Bearing Animation</div>
+                <div class="bearing-wrap">
+                    <div class="bearing" id="bearing-anim">
+                        <div class="bearing-ring"></div>
+                        <div class="bearing-core"></div>
+                        <div class="bearing-rollers">
+                            <span style="--i:0"></span>
+                            <span style="--i:1"></span>
+                            <span style="--i:2"></span>
+                            <span style="--i:3"></span>
+                            <span style="--i:4"></span>
+                            <span style="--i:5"></span>
+                            <span style="--i:6"></span>
+                            <span style="--i:7"></span>
+                        </div>
+                    </div>
+                    <div class="bearing-meta">
+                        <span>RPM <strong id="bearing-speed">--</strong></span>
+                        <span>Hours <strong id="bearing-hours">--</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-title">Stats Being Used</div>
+                <div class="stats-list">
+                    <div class="stat-row"><span>Vibration RMS</span><strong id="stat-vibration">--</strong></div>
+                    <div class="stat-row"><span>Temperature</span><strong id="stat-temperature">--</strong></div>
+                    <div class="stat-row"><span>RPM</span><strong id="stat-rpm">--</strong></div>
+                    <div class="stat-row"><span>Hours Running</span><strong id="stat-hours">--</strong></div>
+                    <div class="stat-row"><span>Health %</span><strong id="stat-health">--</strong></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-row"><span>Life Weight</span><strong id="weight-life">--</strong></div>
+                    <div class="stat-row"><span>Slope Weight</span><strong id="weight-slope">--</strong></div>
+                    <div class="stat-row"><span>Combined</span><strong id="weight-combined">--</strong></div>
+                    <div class="stat-row"><span>Risk Level</span><strong id="risk-level">--</strong></div>
+                </div>
+                <a href="/config" class="text-link">Adjust Weights</a>
+                <div class="telemetry-log" id="telemetry-log">
+                    <div class="log-line">Waiting for data...</div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-title">Facility Map</div>
+                <div class="map-placeholder">
+                    <div class="map-grid"></div>
+                    <div class="map-marker"></div>
+                    <div class="map-label">ITC LTD (Tobacco Division)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="./js/api-config.js"></script>
+<script src="./js/dashboard.js"></script>
+<script src="./js/simulator.js"></script>
+<script>
+    // Wire up API health link to configured backend URL
+    document.getElementById('api-health-link').href = (window.BACKEND_URL || '') + '/api/health';
+</script>
+
+</body>
+</html>

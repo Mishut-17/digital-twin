@@ -13,9 +13,8 @@ import asyncio
 import numpy as np
 from datetime import datetime
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -32,9 +31,13 @@ from webapp.simulator import BearingSimulator
 # ---------------------------------------------------------------------------
 app = FastAPI(title="Fabrik Digital Twin Dashboard")
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=os.path.join(_HERE, "static")), name="static")
-templates = Jinja2Templates(directory=os.path.join(_HERE, "templates"))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ---------------------------------------------------------------------------
 #  Global State
@@ -71,22 +74,6 @@ async def startup():
         total_life_hours=config_state["bearing_total_life_hours"]
     )
     print("[startup] Dashboard ready")
-
-
-# ---------------------------------------------------------------------------
-#  Routes
-# ---------------------------------------------------------------------------
-@app.get("/")
-async def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
-
-@app.get("/config")
-async def config_page(request: Request):
-    return templates.TemplateResponse("config.html", {
-        "request": request,
-        "config": config_state,
-    })
 
 
 # ---------------------------------------------------------------------------
