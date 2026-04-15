@@ -15,7 +15,8 @@ from datetime import datetime
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 # Add project root to path
@@ -38,6 +39,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files
+static_dir = os.path.join(PROJECT_ROOT, "webapp", "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # ---------------------------------------------------------------------------
 #  Global State
@@ -97,6 +102,20 @@ async def update_config(cfg: ConfigUpdate):
 @app.get("/api/config")
 async def get_config():
     return config_state
+
+
+@app.get("/", response_class=HTMLResponse)
+async def get_dashboard():
+    dashboard_path = os.path.join(PROJECT_ROOT, "webapp", "templates", "dashboard.html")
+    with open(dashboard_path, "r") as f:
+        return f.read()
+
+
+@app.get("/config", response_class=HTMLResponse)
+async def get_config_page():
+    config_path = os.path.join(PROJECT_ROOT, "webapp", "templates", "config.html")
+    with open(config_path, "r") as f:
+        return f.read()
 
 
 @app.get("/api/health")
